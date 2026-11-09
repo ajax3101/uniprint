@@ -1,0 +1,14 @@
+.cartridge-operations{padding:16px 20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border-bottom:1px solid #edf1ee}
+.operation-form{min-width:0;padding:13px;border:1px solid #e9eeea;border-radius:8px;display:grid;align-content:start;gap:9px}
+.operation-form h3{font-size:11px;margin:0 0 2px;color:#35443a}
+.operation-form label{display:grid;gap:5px;font-size:9px;color:#59655e;font-weight:600}
+.operation-form input,.operation-form select{width:100%;min-width:0;border:1px solid #dfe7e1;border-radius:6px;background:#fff;color:#36423a;padding:8px;font-size:10px}
+.operation-form input:focus,.operation-form select:focus{outline:2px solid #64a48355;border-color:#64a483}
+.operation-form button{justify-self:start}
+.history-panel{margin-top:15px}
+.page-panel>.alert{margin:12px 20px 0}
+.active-installations{border-bottom:1px solid #edf1ee}
+.active-installations .panel-heading{padding:16px 20px 12px}
+.row-operations .scan-operation>div{flex-wrap:wrap}
+@media(max-width:1050px){.cartridge-operations{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.cartridge-operations{grid-template-columns:1fr;padding:13px}.page-panel>.alert{margin:12px 13px 0}}
