@@ -82,6 +82,8 @@ class CartridgeMovementRead(ORMModel):
     from_status: str | None
     to_status: str
     counter_reading: int | None
+    counter_reading_source: str | None
+    counter_reading_recorded_at: datetime | None
     condition: str | None
     note: str | None
     created_at: datetime
@@ -92,8 +94,15 @@ class CartridgeInstallationRead(ORMModel):
     request_id: str
     installed_by: str
     install_counter: int | None
+    install_counter_source: str | None
+    install_counter_recorded_at: datetime | None
+    remove_counter: int | None
+    remove_counter_source: str | None
+    remove_counter_recorded_at: datetime | None
     condition_at_install: str | None
+    condition_at_removal: str | None
     installed_at: datetime
+    removed_at: datetime | None
     cartridge: CartridgeRead
     printer: PrinterRead
 

@@ -560,13 +560,17 @@ def install_cartridge(
     if assignment is None or assignment.request_id != request.id or assignment.to_user_id != request.created_by:
         raise HTTPException(status_code=409, detail="Cartridge was not issued to this request recipient")
 
+    recorded_at = datetime.now(timezone.utc) if payload.counter_reading is not None else None
     installation = CartridgeInstallation(
         cartridge_id=cartridge.id,
         printer_id=request.printer_id,
         request_id=request.id,
         installed_by=actor.id,
         install_counter=payload.counter_reading,
+        install_counter_source="manual" if recorded_at is not None else None,
+        install_counter_recorded_at=recorded_at,
         condition_at_install=payload.condition,
+        installed_at=recorded_at or datetime.now(timezone.utc),
     )
     cartridge.status = "installed"
     session.add(installation)
@@ -580,6 +584,8 @@ def install_cartridge(
             to_status="installed",
             from_status="issued",
             counter_reading=payload.counter_reading,
+            counter_reading_source="manual" if recorded_at is not None else None,
+            counter_reading_recorded_at=recorded_at,
             condition=payload.condition,
             idempotency_key=idempotency_key,
         )
@@ -641,6 +647,8 @@ def remove_cartridge(
     installation.removed_at = now
     installation.removed_by = actor.id
     installation.remove_counter = payload.counter_reading
+    installation.remove_counter_source = "manual" if payload.counter_reading is not None else None
+    installation.remove_counter_recorded_at = now if payload.counter_reading is not None else None
     installation.condition_at_removal = payload.condition
     cartridge.status = "issued"
     session.add(
@@ -653,6 +661,8 @@ def remove_cartridge(
             from_status="installed",
             to_status="issued",
             counter_reading=payload.counter_reading,
+            counter_reading_source="manual" if payload.counter_reading is not None else None,
+            counter_reading_recorded_at=now if payload.counter_reading is not None else None,
             condition=payload.condition,
             note=payload.note,
             idempotency_key=idempotency_key,
@@ -740,6 +750,7 @@ def return_cartridge(
     }
     previous_status = cartridge.status
     cartridge.status = status_by_outcome[payload.outcome]
+    recorded_at = datetime.now(timezone.utc) if payload.counter_reading is not None else None
     session.add(
         CartridgeMovement(
             cartridge_id=cartridge.id,
@@ -750,6 +761,8 @@ def return_cartridge(
             from_status=previous_status,
             to_status=cartridge.status,
             counter_reading=payload.counter_reading,
+            counter_reading_source="manual" if recorded_at is not None else None,
+            counter_reading_recorded_at=recorded_at,
             condition=payload.condition,
             note=payload.note,
             idempotency_key=idempotency_key,

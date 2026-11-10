@@ -204,6 +204,11 @@ def test_return_refill_and_inspection_preserve_cartridge_history(client, session
     )
     assert returned.status_code == 200
     assert returned.json()["status"] == "sent_for_refill"
+    return_movement = session.scalar(
+        select(CartridgeMovement).where(CartridgeMovement.idempotency_key == "return-refill-key-01")
+    )
+    assert return_movement.counter_reading_source == "manual"
+    assert return_movement.counter_reading_recorded_at is not None
 
     client.app.dependency_overrides[current_actor] = lambda: Actor(id="test-admin", roles=frozenset({"admin"}))
     completed = client.post(
@@ -310,6 +315,15 @@ def test_install_remove_and_repair_cycle_is_recorded_and_idempotent(client, sess
     installation = session.scalar(select(CartridgeInstallation).where(CartridgeInstallation.cartridge_id == cartridge.id))
     assert installation.install_counter == 1500
     assert installation.remove_counter == 7200
+    assert installation.install_counter_source == "manual"
+    assert installation.install_counter_recorded_at is not None
+    assert installation.remove_counter_source == "manual"
+    assert installation.remove_counter_recorded_at is not None
+    install_movement = session.scalar(
+        select(CartridgeMovement).where(CartridgeMovement.idempotency_key == install_headers["Idempotency-Key"])
+    )
+    assert install_movement.counter_reading_source == "manual"
+    assert install_movement.counter_reading_recorded_at is not None
 
     returned = client.post(
         f"/api/requests/{request_id}/return",

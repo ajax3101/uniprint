@@ -29,6 +29,14 @@ npm run dev
 uv run pytest
 ```
 
+`tests/test_postgres_concurrency.py` проверяет параллельную выдачу и установку на PostgreSQL. Эти тесты пропускаются без `UNIPRINT_TEST_DATABASE_URL`; для запуска укажите отдельную одноразовую базу PostgreSQL на loopback с именем `uniprint_test`:
+
+```sh
+UNIPRINT_TEST_DATABASE_URL='postgresql+psycopg://uniprint_test:<password>@127.0.0.1:5432/uniprint_test' uv run pytest -q tests/test_postgres_concurrency.py
+```
+
+Тесты удаляют схему только в этой базе и заново накатывают миграции. Не указывайте рабочую или университетскую БД.
+
 Миграции `0001_initial`–`0003_label_tokens` добавлены в репозиторий. Команда `alembic upgrade head` меняет указанную БД; запускайте её только на локальной базе разработки. Не направляйте её на реальную или университетскую БД без отдельного разрешения.
 
 ## Текущие API-маршруты
